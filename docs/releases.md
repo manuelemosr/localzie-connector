@@ -31,7 +31,7 @@ That starts the same workflow. It creates a draft first, so you can review befor
 | Linux x64 | `linux_amd64.tar.gz` |
 | Linux ARM64 | `linux_arm64.tar.gz` |
 
-Each archive contains `localzie-connector`, short setup instructions, the project license/notices, dependency licenses, `DEPENDENCIES.json` and build metadata. Extract it, open a terminal in that folder and run `./localzie-connector setup`. Customers do not need Go installed.
+Each archive contains `localzie-connector`, short setup instructions, the project license/notices, dependency licenses, `DEPENDENCIES.json` and build metadata. Extract it, open a terminal in that folder and run `./install.sh`. It confirms success or reports an error and prints the exact command to start setup. It uses a writable folder already on PATH where possible; otherwise it prints a full path that works immediately. `LOCALZIE_INSTALL_DIR` can select another folder. You can also run `./localzie-connector setup` directly without installing. Customers do not need Go installed.
 
 `SHA256SUMS` verifies the archives and build manifest. On macOS use `shasum -a 256 -c SHA256SUMS`; on Linux use `sha256sum -c SHA256SUMS`, with all release files downloaded into the same directory. Checksums detect changed/corrupted files; they are not Apple signing or an independent publisher signature.
 

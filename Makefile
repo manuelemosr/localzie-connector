@@ -1,8 +1,10 @@
 BINARY := bin/localzie-connector
 VERSION ?= dev
-.PHONY: build test check fmt clean
+.PHONY: build install test check fmt clean
 build:
 	go build -trimpath -ldflags "-X main.version=$(VERSION)" -o $(BINARY) ./cmd/localzie-connector
+install:
+	./install.sh
 test:
 	go test -race ./...
 check:

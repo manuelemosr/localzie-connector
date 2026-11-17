@@ -19,7 +19,7 @@ class ReleaseTests(unittest.TestCase):
             project, module, goroot = root / "project", root / "dependency", root / "go"
             for directory in (project, module, goroot):
                 directory.mkdir()
-            for name in ("LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md"):
+            for name in ("LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "install.sh"):
                 (project / name).write_text("Public project notice")
             (project / "connector.json").write_text("PRIVATE_TEST_PAYLOAD")
             (project / "home.jwt").write_text("PRIVATE_TEST_PAYLOAD")

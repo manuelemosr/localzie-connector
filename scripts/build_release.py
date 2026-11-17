@@ -62,12 +62,13 @@ def make_archive(destination, binary, metadata, modules, epoch):
     with destination.open("wb") as output, gzip.GzipFile(fileobj=output, filename="", mode="wb", mtime=epoch) as compressed:
         with tarfile.open(fileobj=compressed, mode="w") as archive:
             add_bytes(archive, prefix + "/localzie-connector", binary.read_bytes(), epoch, 0o755)
-            for name in ("LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md"):
-                add_bytes(archive, prefix + "/" + name, (ROOT / name).read_bytes(), epoch)
+            for name in ("LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "install.sh"):
+                add_bytes(archive, prefix + "/" + name, (ROOT / name).read_bytes(), epoch, 0o755 if name == "install.sh" else 0o644)
             readme = ("Localzie Connector " + metadata["version"] + "\n\n"
                       "Localzie for iPhone: https://apps.apple.com/app/id6813506926\n\n"
-                      "Run ./localzie-connector setup to choose your models and coding agents,\n"
-                      "connect your phone and start the connector. Keep the terminal open.\n"
+                      "Run ./install.sh to install the connector. It confirms success and prints\n"
+                      "the exact command to start setup. Or run ./localzie-connector setup\n"
+                      "directly from this folder. Keep the connector terminal open.\n"
                       "Setup codes are private, single-use and expire after ten minutes.\n\n"
                       "This is a developer preview. New installations connect at home;\n"
                       "automatic remote activation is still being added by Localzie.\n"

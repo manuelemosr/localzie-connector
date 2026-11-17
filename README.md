@@ -75,7 +75,7 @@ Coding agents can work with files and run commands, so keep your pairing code sa
 
 ## Download the connector
 
-[GitHub Releases](https://github.com/manuelemosr/localzie-connector/releases) is where prebuilt downloads are published. Choose Mac for Apple silicon or Intel, or Linux x64/ARM64. Extract the archive and run `./localzie-connector setup`.
+[GitHub Releases](https://github.com/manuelemosr/localzie-connector/releases) is where prebuilt downloads are published. Choose Mac for Apple silicon or Intel, or Linux x64/ARM64. Extract the archive and run `./install.sh`. It reports success or an error, and prints the exact command to start setup. You can also run `./localzie-connector setup` directly from the extracted folder.
 
 The first preview release is being prepared. Mac binaries are not Apple Developer ID signed or notarized yet.
 
@@ -84,13 +84,14 @@ The first preview release is being prepared. Mac binaries are not Apple Develope
 The connector currently supports macOS and Linux. With Go 1.27 or newer installed:
 
 ```sh
-go install github.com/manuelemosr/localzie-connector/cmd/localzie-connector@main
-localzie-connector setup
+git clone https://github.com/manuelemosr/localzie-connector.git
+cd localzie-connector
+./install.sh
 ```
 
-Make sure your Go binary folder is on your terminal's PATH. Find it with `go env GOBIN`; if that is empty, it is `$(go env GOPATH)/bin`. If `localzie-connector` is not found, run it by that full path. The `@main` command above uses the current preview rather than an older cached release.
+Already in this checkout? Run `./install.sh` or `make install`. The installer confirms installation and prints a copyable setup command. If you built with `make build`, you can also use `./bin/localzie-connector setup` directly.
 
-If you are already in this checkout, use `go install ./cmd/localzie-connector` to install exactly the code you have locally. If you built it with `make build`, run `./bin/localzie-connector setup`. The downloads are standalone binaries, rather than desktop installers.
+For Go developers, `go install github.com/manuelemosr/localzie-connector/cmd/localzie-connector@main` remains available. Go's own install command is silent on success and installs into `go env GOBIN` (or `$(go env GOPATH)/bin` when GOBIN is empty); that folder must be on PATH. `@main` uses the current preview rather than an older cached release.
 
 ## Help and development
 

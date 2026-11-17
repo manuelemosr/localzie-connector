@@ -35,7 +35,7 @@ def publish(directory):
 
 Get [Localzie for iPhone](https://apps.apple.com/app/id6813506926).
 
-Download the archive for your computer, extract it, then run `./localzie-connector setup`.
+Download the archive for your computer, extract it, then run `./install.sh`. The installer confirms success and prints the exact setup command.
 
 | Computer | Download ending |
 | --- | --- |
