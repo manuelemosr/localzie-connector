@@ -178,19 +178,7 @@ func selectServices(ctx context.Context, input io.Reader, output io.Writer, serv
 	if accessible {
 		return selectAccessible(ctx, input, output, services, selected)
 	}
-	options := make([]huh.Option[string], 0, len(services))
-	for _, service := range services {
-		options = append(options, huh.NewOption(safeLabel(service.Endpoint.Name)+" - "+service.Detail, service.Endpoint.ID))
-	}
-	field := huh.NewMultiSelect[string]().Title("What would you like to use in Localzie?").Description("Space to select · Enter to connect\nCoding agents can run commands and edit files.").Options(options...).Value(&selected).Validate(func(value []string) error {
-		if len(value) == 0 {
-			return errors.New("choose at least one service")
-		}
-		if len(value) > 16 {
-			return errors.New("choose up to 16 services")
-		}
-		return nil
-	})
+	field := servicePicker(services, &selected)
 	err := huh.NewForm(huh.NewGroup(field)).WithTheme(setupTheme()).WithInput(input).WithOutput(output).WithAccessible(accessible).RunWithContext(ctx)
 	if errors.Is(err, huh.ErrUserAborted) {
 		return nil, errors.New("setup canceled; your saved connections were kept")
@@ -317,4 +305,21 @@ func scanSetupLine(ctx context.Context, scanner *bufio.Scanner) (string, error) 
 	case value := <-done:
 		return value.line, value.err
 	}
+}
+
+func servicePicker(services []Service, selected *[]string) *huh.MultiSelect[string] {
+	options := make([]huh.Option[string], 0, len(services))
+	for _, service := range services {
+		options = append(options, huh.NewOption(safeLabel(service.Endpoint.Name)+" - "+service.Detail, service.Endpoint.ID))
+	}
+	field := huh.NewMultiSelect[string]().Height(min(len(options), 8) + 5).Title("What would you like to use in Localzie?").Description("Space to select · Enter to connect\nCoding agents can run commands and edit files.").Options(options...).Value(selected).Validate(func(value []string) error {
+		if len(value) == 0 {
+			return errors.New("choose at least one service")
+		}
+		if len(value) > 16 {
+			return errors.New("choose up to 16 services")
+		}
+		return nil
+	})
+	return field
 }

@@ -237,3 +237,21 @@ func (r *readStarted) Read(value []byte) (int, error) {
 	r.once.Do(func() { close(r.started) })
 	return r.Reader.Read(value)
 }
+
+func TestTerminalPickerRendersServicesBelowItsFullDescription(t *testing.T) {
+	for _, services := range [][]Service{
+		{{Endpoint: ziticonn.Endpoint{ID: "codex", Name: "Codex"}, Detail: "Installed on this computer"}},
+		{{Endpoint: ziticonn.Endpoint{ID: "codex", Name: "Codex"}}, {Endpoint: ziticonn.Endpoint{ID: "models", Name: "Ollama"}}, {Endpoint: ziticonn.Endpoint{ID: "opencode", Name: "OpenCode"}}},
+	} {
+		selected := []string{}
+		picker := servicePicker(services, &selected)
+		picker.WithTheme(setupTheme())
+		picker.WithWidth(90)
+		view := picker.View()
+		for _, service := range services {
+			if !strings.Contains(view, service.Endpoint.Name) {
+				t.Fatalf("service %s was clipped from the terminal picker: %q", service.Endpoint.Name, view)
+			}
+		}
+	}
+}
