@@ -11,6 +11,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/manuelemosr/localzie-connector/internal/setup"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -32,8 +33,9 @@ func main() {
 func run() error {
 	if len(os.Args) < 2 || os.Args[1] == "help" || os.Args[1] == "--help" || os.Args[1] == "-h" {
 		fmt.Println("Localzie Connector - your home models and coding agents on iPhone")
-		fmt.Println("Usage: localzie-connector <serve|pair|enroll|devices|revoke|version> [options]")
-		fmt.Println("Run a command with --help for its options. See README.md for setup.")
+		fmt.Println("Usage: localzie-connector <setup|serve|pair|enroll|devices|revoke|version> [options]")
+		fmt.Println("Start here: localzie-connector setup")
+		fmt.Println("Localzie for iPhone: https://apps.apple.com/app/id6813506926")
 		return nil
 	}
 	if os.Args[1] == "version" || os.Args[1] == "--version" {
@@ -41,7 +43,7 @@ func run() error {
 		return nil
 	}
 	switch os.Args[1] {
-	case "serve", "pair", "enroll", "devices", "revoke":
+	case "setup", "serve", "pair", "enroll", "devices", "revoke":
 	default:
 		return errors.New("unknown command; run localzie-connector --help")
 	}
@@ -52,6 +54,9 @@ func run() error {
 	jwt := fs.String("jwt", "", "one-time Ziti enrollment file")
 	identity := fs.String("identity", "", "output Ziti identity file (enroll)")
 	device := fs.String("device", "", "device ID to revoke")
+	name := fs.String("name", "My computer", "computer name in Localzie")
+	keyEnv := fs.String("api-key-env", "", "environment variable holding a model server API key")
+	accessible := fs.Bool("accessible", false, "use screen-reader-friendly setup prompts")
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return nil
@@ -63,6 +68,24 @@ func run() error {
 	}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
+	if os.Args[1] == "setup" {
+		configPath := *config
+		explicitConfig := false
+		fs.Visit(func(f *flag.Flag) {
+			if f.Name == "config" {
+				explicitConfig = true
+			}
+		})
+		if !explicitConfig {
+			configPath = filepath.Join(*dir, "connector.json")
+			if _, err := os.Stat(configPath); errors.Is(err, os.ErrNotExist) {
+				if _, err := os.Stat("connector.json"); err == nil {
+					configPath = "connector.json"
+				}
+			}
+		}
+		return setup.New().Run(ctx, os.Stdin, os.Stdout, setup.Options{ConfigPath: configPath, DataDir: *dir, Name: *name, APIKeyEnv: *keyEnv, PhoneEnrollment: *jwt, Accessible: *accessible})
+	}
 	if os.Args[1] == "enroll" {
 		if *jwt == "" || *identity == "" {
 			return errors.New("enroll requires --jwt and --identity")

@@ -208,3 +208,13 @@ func TestRemoteUpgradeKeepsTheSameAuthenticatedPhone(t *testing.T) {
 		t.Fatal("extra phone created")
 	}
 }
+
+func TestServeReadyRequiresSuccessfulStartup(t *testing.T) {
+	t.Setenv("PATH", t.TempDir())
+	called := false
+	config := Config{LocalOnly: true, Name: "Home", Endpoints: []Endpoint{{ID: "codex", Name: "Codex", Kind: "codex", Directory: t.TempDir()}}}
+	err := ServeWithReady(context.Background(), config, t.TempDir(), func() error { called = true; return nil })
+	if err == nil || called {
+		t.Fatal("advertised readiness before the selected harness could start")
+	}
+}

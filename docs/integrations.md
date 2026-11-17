@@ -4,6 +4,7 @@ The connector uses existing local APIs; it does not scrape terminals or modify h
 
 | Integration | Pin / interface | Official reference |
 | --- | --- | --- |
+| Huh | v2.0.3; terminal forms and checkbox selection | [Official snapshots](interfaces/huh/README.md) |
 | OpenZiti | `sdk-golang` v1.8.3, exact transitive versions in `go.mod`/`go.sum` | [SDK source](https://github.com/openziti/sdk-golang/tree/v1.8.3) |
 | Codex | CLI 0.167.0; app-server JSON-RPC over stdio, native schema used during integration | [App-server guide](https://learn.chatgpt.com/docs/app-server.md) |
 | OpenCode | Native service APIs; legacy compatibility gates and v2 adapter fixtures are in `internal/harness` | [Server documentation](https://opencode.ai/docs/server/) |

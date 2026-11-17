@@ -1,0 +1,7 @@
+> Official snapshot; do not hand-edit.
+> Source: https://raw.githubusercontent.com/charmbracelet/huh/v2.0.3/huh.go
+> Version: v2.0.3
+> Fetched: 2026-11-17
+
+// Package huh provides components to build terminal-based forms and prompts.
+package huh

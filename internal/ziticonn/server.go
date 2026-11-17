@@ -416,6 +416,14 @@ func disconnect(conn net.Conn) {
 }
 
 func Serve(ctx context.Context, c Config, dir string) error {
+	return ServeWithReady(ctx, c, dir, nil)
+}
+
+// ServeWithReady calls ready only after local listeners and managed harnesses
+// are initialized. A callback failure shuts the connector down.
+func ServeWithReady(ctx context.Context, c Config, dir string, ready func() error) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	if err := ensureEndpointIDs(&c, dir); err != nil {
 		return err
 	}
@@ -604,6 +612,11 @@ func Serve(ctx context.Context, c Config, dir string) error {
 	}()
 	if len(listeners) == 0 && c.LocalOnly {
 		return errors.New("no private LAN interface could be opened")
+	}
+	if ready != nil {
+		if err := ready(); err != nil {
+			return err
+		}
 	}
 	select {
 	case <-ctx.Done():

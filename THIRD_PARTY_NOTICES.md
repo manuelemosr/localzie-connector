@@ -2,10 +2,11 @@
 
 Localzie Connector uses modules downloaded by Go; third-party source is not vendored here. Their original licenses and notices remain in their module distributions. This project's Apache 2.0 license does not replace those terms. `go.mod` and `go.sum` are the exact dependency inventory, including transitive dependencies.
 
-Direct dependencies at extraction:
+Direct dependencies:
 
 | Module | License | Purpose |
 | --- | --- | --- |
+| charm.land/huh/v2 | MIT | Guided terminal setup and checkbox selection; official interface snapshots and license are in `docs/interfaces/huh` |
 | github.com/coder/websocket | ISC | Harness WebSockets / integration fixtures |
 | github.com/hashicorp/mdns | MIT | LAN discovery |
 | github.com/openziti/sdk-golang | Apache-2.0 | Remote network transport and enrollment |

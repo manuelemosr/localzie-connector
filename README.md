@@ -1,104 +1,83 @@
-# Localzie Connector
+<div align="center">
 
-[![CI](https://github.com/manuelemosr/localzie-connector/actions/workflows/ci.yml/badge.svg)](https://github.com/manuelemosr/localzie-connector/actions/workflows/ci.yml)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+# Localzie
 
-Use the AI models and coding agents on your own computer from Localzie on your iPhone. The connector makes only the services you configure available to paired phones, over your private LAN and optionally [OpenZiti](https://openziti.io/).
+### Your computer's AI, on your iPhone.
 
-**Status: developer preview.** The connector is usable from source. Remote access currently requires an operator-provisioned OpenZiti network and enrollment files. There is no hosted enrollment service or automatic installation/start-at-login wizard in this release.
+Use your own models and coding agents from your phone. Keep working on an OpenCode, Hermes or Codex project, or chat with the models running on your computer.
 
-## What it connects
+**[Get Localzie on the App Store](https://apps.apple.com/app/id6813506926)**
 
-| Service | Configuration kind | How it connects |
-| --- | --- | --- |
-| Ollama, llama.cpp, LM Studio, vLLM and other OpenAI-compatible servers | `openai-compatible` | Your existing loopback HTTP API |
-| OpenCode | `opencode` | Your existing local service; can discover its service descriptor |
-| Hermes | `hermes` | Your authenticated local dashboard API |
-| Codex (experimental) | `codex` | A connector-owned `codex app-server` process using your existing CLI installation |
+The open-source computer companion for Localzie.
 
-Localzie's iPhone app is distributed separately. This repository contains the computer connector, its tests and documentation. It does not contain the app or a relay server.
+![How Localzie connects your computer and iPhone](docs/images/how-localzie-works.svg)
 
-## Build and install
+</div>
 
-Prerequisites: **Go 1.27 or newer**, macOS or Linux, and at least one running model server or supported harness. Codex additionally needs its CLI installed and authenticated on the computer. The Codex integration was developed against CLI 0.167.0; other versions need compatibility testing.
+## Connect your computer
+
+Once the connector is installed, run:
 
 ```sh
-git clone https://github.com/manuelemosr/localzie-connector.git
-cd localzie-connector
-make build
-./bin/localzie-connector --help
+localzie-connector setup
 ```
 
-Or install the primary CLI into your Go binary directory:
+It finds your models and coding agents. Use the arrow keys to move, **Space** to check the ones you want, then **Enter** to connect.
+
+```text
+Localzie
+Your computer's AI, on your iPhone.
+
+What would you like to use in Localzie?
+
+  [x] Ollama
+  [x] OpenCode
+  [ ] Codex
+
+Space to select · Enter to connect
+```
+
+Setup saves your choices, starts the connector and gives you a private, one-use code. On your iPhone, open **Localzie → Connect to a server** and paste the code. Your selected services appear in the usual server list.
+
+That's one command for setup and starting the connection. Keep the terminal open while you use Localzie; closing it stops the connector. Run `setup` again to change your choices. The CLI uses a copyable code; QR codes are for the UI version.
+
+## At home and away
+
+At home, Localzie prefers your home Wi-Fi. Remote access uses a secure connection managed by Localzie, with the same servers and chats in the app. You do not need a VPN app, public ports or a network to administer.
+
+**Current preview:** fresh installs connect on your home network. The wizard preserves remote access on computers already set up by Localzie. Automatic remote activation for new computers is the next piece being connected to setup; there is nothing for you to provision.
+
+## What can I connect?
+
+- **Local models** through Ollama, LM Studio, llama.cpp, vLLM, Jan and other compatible model servers.
+- **OpenCode** and **Hermes** for your existing coding-agent sessions.
+- **Codex**, using the Codex installation already on your computer.
+
+Start the service before running setup. OpenCode can be found through its existing local service information. Codex can be selected when installed. Services protected by a password or API key need their existing credentials to be available to the connector; see [help with discovery](docs/setup.md).
+
+A computer without a display works too: run setup in its terminal. A text-only, screen-reader-friendly version is available with `localzie-connector setup --accessible`.
+
+## Your computer stays yours
+
+Only the services you check are shared with your paired phone. Your models and agents keep running on your computer. A setup code is private, expires after 10 minutes and works once.
+
+Coding agents can work with files and run commands, so keep your pairing code safe, just as you would access to your computer. [Privacy and security details](docs/security.md).
+
+## Install from source
+
+The connector currently supports macOS and Linux. With Go 1.27 or newer installed:
 
 ```sh
 go install github.com/manuelemosr/localzie-connector/cmd/localzie-connector@latest
+localzie-connector setup
 ```
 
-No prebuilt binaries are published yet. Windows has not been validated.
+If you already built it from this repository, run `./bin/localzie-connector setup`. Prebuilt installers are not available yet.
 
-## Start on your home network
+## Help and development
 
-1. Start your model server on the same computer. The example uses an OpenAI-compatible API at `http://127.0.0.1:1234` (change that port to match your server).
-2. Copy the example and review which services you want to share:
+[Setup help](docs/setup.md) · [Report a problem](https://github.com/manuelemosr/localzie-connector/issues/new/choose) · [Contribute](CONTRIBUTING.md)
 
-   ```sh
-   cp examples/connector.local.json connector.json
-   ./bin/localzie-connector serve --config connector.json
-   ```
+The computer connector is open source under [Apache 2.0](LICENSE). Localzie for iPhone is available separately on the App Store. Developer references: [architecture](docs/architecture.md), [advanced configuration](docs/configuration.md), [integration pins](docs/integrations.md) and [dependency notices](THIRD_PARTY_NOTICES.md).
 
-3. Keep that terminal running. In a second terminal, create a single-use pairing code:
-
-   ```sh
-   ./bin/localzie-connector pair --config connector.json
-   ```
-
-4. On your iPhone, open **Localzie > Connect to a server**, open the remote/setup-code banner and paste the complete `LZ1:` code. Despite that banner's name, the local-only example does not enable remote access. Your configured services appear in the normal server list. The phone and computer must be on the same reachable private network for this example.
-
-Codes expire after 10 minutes and work once. **Treat them like a password to your computer.** Copy the code privately; never put it in an issue, screenshot, build log or public terminal recording. The CLI prints a code; QR presentation belongs to the separate UI.
-
-The default private state directory is `LocalzieZiti` under the operating system's user configuration directory. Keep that existing name when upgrading from the pilot to preserve paired phones. Use the same `--data-dir /absolute/private/path` for `serve`, `pair`, `devices` and `revoke` if you override it. The foreground server must stay running, and the computer must stay awake. There is no background-service installer yet.
-
-## Enable access away from home
-
-See [remote setup](docs/remote-setup.md). You need a configured OpenZiti service, a home identity allowed to **Bind**, and one single-use phone enrollment allowed to **Dial**. Running the connector alone does not create that infrastructure.
-
-The same home connector serves LAN and OpenZiti routes with the same phone authentication and service list. A compatible Localzie app prefers a verified local connection at home and uses the paired remote path when away. No phone VPN or public port forwarding is needed.
-
-## Commands
-
-| Command | Purpose |
-| --- | --- |
-| `serve --config connector.json` | Serve the allowlisted services until stopped |
-| `pair --config connector.json [--jwt phone.jwt]` | Print one expiring setup code; `--jwt` is required for remote mode |
-| `enroll --jwt home.jwt --identity home.json` | Enroll the home OpenZiti identity; refuses to overwrite an existing file |
-| `devices` | List paired device IDs and revocation state as JSON |
-| `revoke --device DEVICE_ID` | Revoke a phone's connector access |
-| `version` | Print the build version |
-
-Run any command with `--help` for flags. [Configuration](docs/configuration.md) documents authentication, multiple harnesses and state. The older `cmd/localzie` LAN protocol CLI remains in source for compatibility; the primary command above is the LAN/OpenZiti connector.
-
-## Security and privacy
-
-- TLS 1.3 protects phone-to-home traffic independently of the OpenZiti fabric. Pairing anchors home certificate trust; phone bearer tokens are independently checked and hashed at rest.
-- Pairing secrets are single-use and expire. The home computer's configuration is the service allowlist. Upstream HTTP destinations must be literal loopback addresses with explicit ports.
-- The connector listens on concrete private/link-local LAN addresses, never a wildcard/public interface. OpenZiti handles the remote route. Do not forward the LAN port through your router.
-- Coding harnesses can read/write files and execute commands under their own permissions. Tool permissions may be automatically approved while the phone controls Codex; interactive questions are not auto-answered. Pairing grants powerful access to the configured harness, not just model text completion.
-- Accepted work belongs to the connector. Losing a connection detaches the phone; explicit Stop, a limit, upstream failure or host shutdown ends the work.
-- No application analytics or automatic diagnostic uploads are added by the connector. Your selected runtimes and harnesses have their own networking, authentication and data policies.
-
-Encryption does not make a compromised phone or home computer safe. OpenZiti infrastructure can observe connection metadata and disrupt availability; the additional TLS layer is intended to protect application content from that infrastructure. The connector keeps private state and a bounded request replay journal on the home computer, so host administrators can access that local data. Read the [threat model and limitations](docs/security.md).
-
-## Development
-
-```sh
-make check
-make test
-make build
-```
-
-CI builds, vets and runs race-enabled tests on Linux and macOS. Most tests use synthetic local services. Live Codex and OpenZiti tests are opt-in and require your own private credentials; they do not run in public CI. See [CONTRIBUTING.md](CONTRIBUTING.md), [architecture](docs/architecture.md) and [integration pins](docs/integrations.md).
-
-## License
-
-[Apache License 2.0](LICENSE). Dependencies retain their own licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Product and third-party trademarks remain with their owners.
+[![CI](https://github.com/manuelemosr/localzie-connector/actions/workflows/ci.yml/badge.svg)](https://github.com/manuelemosr/localzie-connector/actions/workflows/ci.yml)

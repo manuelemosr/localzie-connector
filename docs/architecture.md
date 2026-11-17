@@ -1,5 +1,7 @@
 # Architecture
 
+Developer reference. For the customer experience, start with the [README](../README.md) or [setup guide](setup.md). Customers use Localzie-managed remote access; these transport details are not customer setup requirements.
+
 ```mermaid
 flowchart LR
   P[Paired iPhone] -->|Private LAN| T[TLS 1.3 + phone authentication]
