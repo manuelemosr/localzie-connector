@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -204,10 +205,17 @@ func TestAccessibleCancellationDoesNotWaitForAnotherLine(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	done := make(chan error, 1)
+	reading := make(chan struct{})
+	observed := &readStarted{Reader: input, started: reading}
 	go func() {
-		_, err := selectAccessible(ctx, input, io.Discard, []Service{{Endpoint: ziticonn.Endpoint{ID: "one", Name: "First"}}}, nil)
+		_, err := selectAccessible(ctx, observed, io.Discard, []Service{{Endpoint: ziticonn.Endpoint{ID: "one", Name: "First"}}}, nil)
 		done <- err
 	}()
+	select {
+	case <-reading:
+	case <-time.After(time.Second):
+		t.Fatal("setup never started reading terminal input")
+	}
 	cancel()
 	select {
 	case err := <-done:
@@ -217,4 +225,15 @@ func TestAccessibleCancellationDoesNotWaitForAnotherLine(t *testing.T) {
 	case <-time.After(time.Second):
 		t.Fatal("canceled setup kept waiting for terminal input")
 	}
+}
+
+type readStarted struct {
+	io.Reader
+	started chan struct{}
+	once    sync.Once
+}
+
+func (r *readStarted) Read(value []byte) (int, error) {
+	r.once.Do(func() { close(r.started) })
+	return r.Reader.Read(value)
 }
