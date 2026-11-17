@@ -1,0 +1,25 @@
+name: Bug report
+description: Report a reproducible connector problem
+body:
+  - type: markdown
+    attributes:
+      value: "For vulnerabilities use Security > Report a vulnerability. Never include secrets or real chat histories."
+  - type: input
+    id: version
+    attributes:
+      label: Connector commit/version and operating system
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Use synthetic examples and redact configuration credentials.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true

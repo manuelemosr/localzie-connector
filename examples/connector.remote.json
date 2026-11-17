@@ -1,0 +1,13 @@
+{
+  "name": "My home computer",
+  "endpoints": [
+    {
+      "id": "models",
+      "name": "Home models",
+      "kind": "openai-compatible",
+      "url": "http://127.0.0.1:1234"
+    }
+  ],
+  "identity_file": "/absolute/private/path/home.json",
+  "service": "my-home-models"
+}

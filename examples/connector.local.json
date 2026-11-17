@@ -1,0 +1,12 @@
+{
+  "name": "My home computer",
+  "local_only": true,
+  "endpoints": [
+    {
+      "id": "models",
+      "name": "Home models",
+      "kind": "openai-compatible",
+      "url": "http://127.0.0.1:1234"
+    }
+  ]
+}

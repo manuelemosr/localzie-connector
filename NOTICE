@@ -1,0 +1,6 @@
+Localzie Connector
+Copyright 2026 Localzie contributors
+
+This repository contains the Localzie computer connector.
+Third-party dependencies retain their respective licenses.
+See THIRD_PARTY_NOTICES.md and go.mod.

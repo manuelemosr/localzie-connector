@@ -1,0 +1,15 @@
+/bin/
+/dist/
+/connector.json
+/state/
+.env
+.env.*
+*.jwt
+*.pem
+*.key
+*.crt
+*.db
+*.db-shm
+*.db-wal
+*.log
+.DS_Store

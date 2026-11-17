@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/manuelemosr/localzie-connector/security/advisories/new
+    about: Report vulnerabilities privately. Do not post secrets in issues.
