@@ -2,17 +2,27 @@
 
 # Localzie
 
+[![CI](https://github.com/manuelemosr/localzie-connector/actions/workflows/ci.yml/badge.svg)](https://github.com/manuelemosr/localzie-connector/actions/workflows/ci.yml)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
+
 ### Your computer's AI, on your iPhone.
 
 Use your own models and coding agents from your phone. Keep working on an OpenCode, Hermes or Codex project, or chat with the models running on your computer.
 
-**[Get Localzie on the App Store](https://apps.apple.com/app/id6813506926)**
+**[Get Localzie on the App Store](https://apps.apple.com/app/id6813506926)** · **[Download the computer connector](https://github.com/manuelemosr/localzie-connector/releases)**
 
 The open-source computer companion for Localzie.
 
-![How Localzie connects your computer and iPhone](docs/images/how-localzie-works.svg)
+[![Localzie - create images, chat with agents, use home models](docs/images/localzie-banner.png)](https://apps.apple.com/app/id6813506926)
 
 </div>
+
+## How it works
+
+```mermaid
+flowchart LR
+    Computer["Your computer\nThe models and agents you select"] <-->|"Secure connection\nHome Wi-Fi or away"| Phone["Localzie on your iPhone"]
+```
 
 ## Connect your computer
 
@@ -63,21 +73,27 @@ Only the services you check are shared with your paired phone. Your models and a
 
 Coding agents can work with files and run commands, so keep your pairing code safe, just as you would access to your computer. [Privacy and security details](docs/security.md).
 
+## Download the connector
+
+[GitHub Releases](https://github.com/manuelemosr/localzie-connector/releases) is where prebuilt downloads are published. Choose Mac for Apple silicon or Intel, or Linux x64/ARM64. Extract the archive and run `./localzie-connector setup`.
+
+The first preview release is being prepared. Mac binaries are not Apple Developer ID signed or notarized yet.
+
 ## Install from source
 
 The connector currently supports macOS and Linux. With Go 1.27 or newer installed:
 
 ```sh
-go install github.com/manuelemosr/localzie-connector/cmd/localzie-connector@latest
+go install github.com/manuelemosr/localzie-connector/cmd/localzie-connector@main
 localzie-connector setup
 ```
 
-If you already built it from this repository, run `./bin/localzie-connector setup`. Prebuilt installers are not available yet.
+Make sure your Go binary folder is on your terminal's PATH. Find it with `go env GOBIN`; if that is empty, it is `$(go env GOPATH)/bin`. If `localzie-connector` is not found, run it by that full path. The `@main` command above uses the current preview rather than an older cached release.
+
+If you are already in this checkout, use `go install ./cmd/localzie-connector` to install exactly the code you have locally. If you built it with `make build`, run `./bin/localzie-connector setup`. The downloads are standalone binaries, rather than desktop installers.
 
 ## Help and development
 
 [Setup help](docs/setup.md) · [Report a problem](https://github.com/manuelemosr/localzie-connector/issues/new/choose) · [Contribute](CONTRIBUTING.md)
 
-The computer connector is open source under [Apache 2.0](LICENSE). Localzie for iPhone is available separately on the App Store. Developer references: [architecture](docs/architecture.md), [advanced configuration](docs/configuration.md), [integration pins](docs/integrations.md) and [dependency notices](THIRD_PARTY_NOTICES.md).
-
-[![CI](https://github.com/manuelemosr/localzie-connector/actions/workflows/ci.yml/badge.svg)](https://github.com/manuelemosr/localzie-connector/actions/workflows/ci.yml)
+The computer connector is open source under [Apache 2.0](LICENSE). Localzie for iPhone is available separately on the App Store. Developer references: [architecture](docs/architecture.md), [advanced configuration](docs/configuration.md), [integration pins](docs/integrations.md) and [dependency notices](THIRD_PARTY_NOTICES.md). Maintainers: [building and publishing releases](docs/releases.md).

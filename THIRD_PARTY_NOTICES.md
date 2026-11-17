@@ -14,4 +14,4 @@ Direct dependencies:
 | golang.org/x/net | BSD-3-Clause | Network connection limiting |
 | modernc.org/sqlite | BSD-3-Clause | Local persistence |
 
-A distributor publishing linked binaries must also distribute the applicable dependency license/notice material, including transitive dependencies. No prebuilt binary release is included in this initial source publication.
+A distributor publishing linked binaries must also distribute the applicable dependency license/notice material, including transitive dependencies. The release builder includes the applicable module notices under `THIRD_PARTY_LICENSES/`, a `DEPENDENCIES.json` inventory, and the Go toolchain license in each archive.
