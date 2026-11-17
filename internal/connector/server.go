@@ -98,6 +98,9 @@ func (s *Server) harnesses(w http.ResponseWriter, r *http.Request) {
 		for index := range installations {
 			if installations[index].ID == "opencode" {
 				installations[index].Server = &status
+				// An explicitly attached API is detected even without a CLI binary.
+				// Installed still describes the independent local CLI probe.
+				installations[index].IntegrationStatus = "detected_unverified"
 			}
 		}
 	}

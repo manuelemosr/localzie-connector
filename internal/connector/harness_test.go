@@ -626,6 +626,8 @@ func TestHarnessSessionErrorFailsTheJob(t *testing.T) {
 }
 
 func TestHarnessesEndpointReportsAttachedServer(t *testing.T) {
+	// The server API can run without an opencode executable on this PATH.
+	t.Setenv("PATH", t.TempDir())
 	httpServer, _, token := harnessTestServer(t)
 	_, body := harnessRequest(t, httpServer.URL, http.MethodGet, "/v1/harnesses", token, "")
 	var payload struct {
@@ -640,6 +642,9 @@ func TestHarnessesEndpointReportsAttachedServer(t *testing.T) {
 		}
 		if installation.Server == nil || !installation.Server.Attached || !installation.Server.Healthy || installation.Server.ModelCount != 2 {
 			t.Fatalf("opencode server status: %+v", installation.Server)
+		}
+		if installation.Installed {
+			t.Fatal("API attachment must not claim the local CLI is installed")
 		}
 		if installation.IntegrationStatus != "detected_unverified" {
 			t.Fatalf("integration status must stay unverified until fixtures pass: %q", installation.IntegrationStatus)
