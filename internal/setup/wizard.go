@@ -29,7 +29,6 @@ type Options struct {
 	APIKeyEnv       string
 	PhoneEnrollment string
 	Accessible      bool
-	Remote          bool
 }
 
 type Wizard struct {
@@ -68,11 +67,8 @@ func (w Wizard) Run(ctx context.Context, input io.Reader, output io.Writer, opti
 	} else if !errors.Is(err, os.ErrNotExist) {
 		return err
 	}
-	var preview remotePreview
-	if options.Remote {
-		if options.PhoneEnrollment != "" {
-			return errors.New("Use either managed remote setup or a manual enrollment file")
-		}
+	var preview *remotePreview
+	if options.PhoneEnrollment == "" {
 		preview, err = loadRemotePreview(options.DataDir, &config)
 		if err != nil {
 			return err
@@ -154,7 +150,7 @@ func (w Wizard) Run(ctx context.Context, input io.Reader, output io.Writer, opti
 		return fmt.Errorf("could not connect the selected services: %w", err)
 	}
 	var code string
-	if options.Remote {
+	if preview != nil {
 		validated.RequireRemoteReady = true
 		fmt.Fprintln(output, "Connecting to Localzie for access away from home...")
 	} else {
@@ -164,7 +160,7 @@ func (w Wizard) Run(ctx context.Context, input io.Reader, output io.Writer, opti
 		}
 	}
 	return w.Serve(ctx, validated, options.DataDir, func() error {
-		if options.Remote {
+		if preview != nil {
 			code, err = preview.pair(ctx, validated, options.DataDir)
 			if err != nil {
 				return err
@@ -180,7 +176,7 @@ func (w Wizard) Run(ctx context.Context, input io.Reader, output io.Writer, opti
 		for _, endpoint := range config.Endpoints {
 			fmt.Fprintln(output, "  ✓ "+safeLabel(endpoint.Name))
 		}
-		if options.Remote {
+		if preview != nil {
 			fmt.Fprintln(output, "\nRemote pairing is ready. Your phone can be on a different network.")
 		} else if validated.LocalOnly {
 			fmt.Fprintln(output, "\nThis code works on your home network.")

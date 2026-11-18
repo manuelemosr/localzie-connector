@@ -39,7 +39,7 @@ Enter a service number to check or uncheck it, then enter `0` to connect. Closin
 
 ## The phone says the code expired
 
-Run setup again to get a fresh code. Codes expire after ten minutes and can be used once. Do not share codes in public issues, screenshots or recordings. For a new remote pairing code on a computer enabled for the preview, run `localzie-connector setup --remote` again.
+Run setup again to get a fresh code. Codes expire after ten minutes and can be used once. Do not share codes in public issues, screenshots or recordings. For a new remote pairing code on a computer enabled for the preview, run `localzie-connector setup` again.
 
 ## After restarting your computer
 

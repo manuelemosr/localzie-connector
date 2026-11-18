@@ -61,7 +61,6 @@ func run() error {
 	device := fs.String("device", "", "device ID to revoke")
 	name := fs.String("name", "My computer", "computer name in Localzie")
 	keyEnv := fs.String("api-key-env", "", "environment variable holding a model server API key")
-	remote := fs.Bool("remote", false, "enable access away from home on a Localzie preview computer")
 	accessible := fs.Bool("accessible", false, "use screen-reader-friendly setup prompts")
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -90,7 +89,7 @@ func run() error {
 				}
 			}
 		}
-		return setup.New().Run(ctx, os.Stdin, os.Stdout, setup.Options{ConfigPath: configPath, DataDir: *dir, Name: *name, APIKeyEnv: *keyEnv, PhoneEnrollment: *jwt, Accessible: *accessible, Remote: *remote})
+		return setup.New().Run(ctx, os.Stdin, os.Stdout, setup.Options{ConfigPath: configPath, DataDir: *dir, Name: *name, APIKeyEnv: *keyEnv, PhoneEnrollment: *jwt, Accessible: *accessible})
 	}
 	if os.Args[1] == "enroll" {
 		if *jwt == "" || *identity == "" {

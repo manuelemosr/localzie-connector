@@ -27,43 +27,43 @@ type remotePreview struct {
 	Service string `json:"service"`
 }
 
-func loadRemotePreview(dir string, config *ziticonn.Config) (remotePreview, error) {
+func loadRemotePreview(dir string, config *ziticonn.Config) (*remotePreview, error) {
 	var preview remotePreview
 	file, err := os.Open(filepath.Join(dir, "remote-preview.json"))
 	if errors.Is(err, os.ErrNotExist) {
-		return preview, errors.New("Remote setup has not been enabled for this computer")
+		return nil, nil
 	}
 	if err != nil {
-		return preview, err
+		return nil, err
 	}
 	defer file.Close()
 	info, err := file.Stat()
 	if err != nil || !info.Mode().IsRegular() || info.Mode().Perm()&0077 != 0 || info.Size() > 4096 {
-		return preview, errors.New("Remote setup authorization must be a private file")
+		return nil, errors.New("Remote setup authorization must be a private file")
 	}
 	decoder := json.NewDecoder(io.LimitReader(file, 4096))
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(&preview); err != nil {
-		return preview, errors.New("Remote setup authorization is invalid")
+		return nil, errors.New("Remote setup authorization is invalid")
 	}
 	var extra any
 	destination, err := url.Parse(preview.URL)
 	if decoder.Decode(&extra) != io.EOF || err != nil || destination.Scheme != "https" || destination.Hostname() == "" || destination.User != nil || destination.RawQuery != "" || destination.Fragment != "" || len(preview.Grant) != 64 || preview.Service == "" {
-		return preview, errors.New("Remote setup authorization is invalid")
+		return nil, errors.New("Remote setup authorization is invalid")
 	}
 	if !config.LocalOnly && config.Service != preview.Service {
-		return preview, errors.New("This computer already has a different remote connection")
+		return nil, errors.New("This computer already has a different remote connection")
 	}
 	identity, err := filepath.Abs(filepath.Join(dir, "remote-preview-home.json"))
 	if err != nil {
-		return preview, err
+		return nil, err
 	}
 	info, err = os.Stat(identity)
 	if err != nil || !info.Mode().IsRegular() || info.Mode().Perm()&0077 != 0 {
-		return preview, errors.New("Remote setup needs the private home identity installed by Localzie")
+		return nil, errors.New("Remote setup needs the private home identity installed by Localzie")
 	}
 	config.LocalOnly, config.Service, config.IdentityFile = false, preview.Service, identity
-	return preview, nil
+	return &preview, nil
 }
 
 func (preview remotePreview) phoneJWT(ctx context.Context, client *http.Client) (string, error) {

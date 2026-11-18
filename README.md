@@ -55,7 +55,7 @@ That's one command for setup and starting the connection. Keep the terminal open
 
 At home, Localzie prefers your home Wi-Fi. Remote access uses a secure connection managed by Localzie, with the same servers and chats in the app. You do not need a VPN app, public ports or a network to administer.
 
-**Current preview:** `localzie-connector setup` connects on your home network. On computers enabled by Localzie for the remote pilot, `localzie-connector setup --remote` generates a code you can use to pair from another network. [Remote setup](docs/remote-setup.md).
+Run `localzie-connector setup` once to choose what to share. On computers enabled for the Localzie preview, that same command prepares a connection you can pair and use from another network. Other computers use home-network access. [Remote setup](docs/remote-setup.md).
 
 ## What can I connect?
 

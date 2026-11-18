@@ -28,7 +28,6 @@ import (
 
 func TestRemoteSetupDoesNotPrintCodeBeforeBinding(t *testing.T) {
 	wizard, options, output := wizardFixture(t)
-	options.Remote = true
 	if err := os.MkdirAll(options.DataDir, 0700); err != nil {
 		t.Fatal(err)
 	}
@@ -95,7 +94,7 @@ func TestManagedPreviewPairsWithoutLAN(t *testing.T) {
 	defer reader.Close()
 	finished := make(chan error, 1)
 	go func() {
-		err := wizard.Run(ctx, strings.NewReader(""), writer, Options{ConfigPath: filepath.Join(dir, "connector.json"), DataDir: dir, Name: "Test home", Remote: true})
+		err := wizard.Run(ctx, strings.NewReader(""), writer, Options{ConfigPath: filepath.Join(dir, "connector.json"), DataDir: dir, Name: "Test home"})
 		writer.Close()
 		finished <- err
 	}()
