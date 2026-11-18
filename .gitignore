@@ -1,6 +1,8 @@
 /bin/
 /dist/
 /connector.json
+remote-preview.json
+remote-preview-home.json
 /state/
 .env
 .env.*

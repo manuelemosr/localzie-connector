@@ -11,20 +11,25 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/manuelemosr/localzie-connector/internal/setup"
+	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
 
+	"github.com/manuelemosr/localzie-connector/internal/setup"
 	"github.com/manuelemosr/localzie-connector/internal/ziticonn"
 	"github.com/openziti/sdk-golang/ziti"
 	"github.com/openziti/sdk-golang/ziti/enroll"
+	"github.com/sirupsen/logrus"
 )
 
 var version = "dev"
 
 func main() {
+	// The Ziti SDK can include session credentials in its error logs. The
+	// CLI reports connection failures without exporting SDK diagnostics.
+	logrus.SetOutput(io.Discard)
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, "localzie-connector:", err)
 		os.Exit(1)
@@ -56,6 +61,7 @@ func run() error {
 	device := fs.String("device", "", "device ID to revoke")
 	name := fs.String("name", "My computer", "computer name in Localzie")
 	keyEnv := fs.String("api-key-env", "", "environment variable holding a model server API key")
+	remote := fs.Bool("remote", false, "enable access away from home on a Localzie preview computer")
 	accessible := fs.Bool("accessible", false, "use screen-reader-friendly setup prompts")
 	if err := fs.Parse(os.Args[2:]); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -84,7 +90,7 @@ func run() error {
 				}
 			}
 		}
-		return setup.New().Run(ctx, os.Stdin, os.Stdout, setup.Options{ConfigPath: configPath, DataDir: *dir, Name: *name, APIKeyEnv: *keyEnv, PhoneEnrollment: *jwt, Accessible: *accessible})
+		return setup.New().Run(ctx, os.Stdin, os.Stdout, setup.Options{ConfigPath: configPath, DataDir: *dir, Name: *name, APIKeyEnv: *keyEnv, PhoneEnrollment: *jwt, Accessible: *accessible, Remote: *remote})
 	}
 	if os.Args[1] == "enroll" {
 		if *jwt == "" || *identity == "" {

@@ -48,13 +48,14 @@ type Endpoint struct {
 }
 
 type Config struct {
-	IdentityFile string     `json:"identity_file"`
-	Service      string     `json:"service"`
-	Name         string     `json:"name"`
-	Endpoints    []Endpoint `json:"endpoints"`
-	LANPort      int        `json:"lan_port,omitempty"`
-	LocalOnly    bool       `json:"local_only,omitempty"`
-	stateDir     string
+	IdentityFile       string     `json:"identity_file"`
+	Service            string     `json:"service"`
+	Name               string     `json:"name"`
+	Endpoints          []Endpoint `json:"endpoints"`
+	LANPort            int        `json:"lan_port,omitempty"`
+	LocalOnly          bool       `json:"local_only,omitempty"`
+	RequireRemoteReady bool       `json:"-"`
+	stateDir           string
 }
 
 var safeID = regexp.MustCompile(`^[a-zA-Z0-9_-]{1,64}$`)
@@ -453,6 +454,7 @@ func ServeWithReady(ctx context.Context, c Config, dir string, ready func() erro
 		return err
 	}
 	remoteListeners := make(chan net.Listener)
+	remoteReady := make(chan struct{})
 	var listeners []net.Listener
 	lanListeners := map[string]net.Listener{}
 	for _, address := range lanAddresses(c.LANPort) {
@@ -468,10 +470,14 @@ func ServeWithReady(ctx context.Context, c Config, dir string, ready func() erro
 			for ctx.Err() == nil {
 				z, e := NewContext(ctx, c.IdentityFile)
 				if e == nil {
-					listener, e := z.Listen(c.Service)
+					options := ziti.DefaultListenOptions()
+					options.WaitForNEstablishedListeners = 1
+					options.ConnectTimeout = 8 * time.Second
+					listener, e := z.ListenWithOptions(c.Service, options)
 					if e == nil {
 						select {
 						case remoteListeners <- listener:
+							close(remoteReady)
 						case <-ctx.Done():
 							listener.Close()
 						}
@@ -613,6 +619,17 @@ func ServeWithReady(ctx context.Context, c Config, dir string, ready func() erro
 	if len(listeners) == 0 && c.LocalOnly {
 		return errors.New("no private LAN interface could be opened")
 	}
+	if c.RequireRemoteReady {
+		timer := time.NewTimer(25 * time.Second)
+		defer timer.Stop()
+		select {
+		case <-remoteReady:
+		case <-timer.C:
+			return errors.New("Localzie could not establish the remote route. Check your internet connection and try setup again")
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
 	if ready != nil {
 		if err := ready(); err != nil {
 			return err
@@ -642,18 +659,24 @@ type Pairing struct {
 }
 
 func Pair(c Config, dir, jwtPath string) (string, error) {
+	if c.LocalOnly {
+		return PairWithEnrollment(c, dir, "")
+	}
+	jwt, err := os.ReadFile(jwtPath)
+	if err != nil {
+		return "", err
+	}
+	return PairWithEnrollment(c, dir, string(jwt))
+}
+
+// PairWithEnrollment keeps managed enrollment credentials in memory. The
+// actual one-use pairing secret and pinned home certificate originate here.
+func PairWithEnrollment(c Config, dir, jwt string) (string, error) {
 	if err := ensureEndpointIDs(&c, dir); err != nil {
 		return "", err
 	}
-	var jwt []byte
-	var err error
-	if !c.LocalOnly {
-		jwt, err = os.ReadFile(jwtPath)
-		if err != nil {
-			return "", err
-		}
-	}
-	if !c.LocalOnly && (len(jwt) > 8192 || len(strings.Split(strings.TrimSpace(string(jwt)), ".")) != 3) {
+	jwt = strings.TrimSpace(jwt)
+	if !c.LocalOnly && (len(jwt) > 8192 || strings.Count(jwt, ".") != 2) {
 		return "", errors.New("phone enrollment file is not a JWT")
 	}
 	id, db, err := OpenState(dir)
@@ -689,7 +712,7 @@ func Pair(c Config, dir, jwtPath string) (string, error) {
 	if c.LocalOnly {
 		addresses = lanAddresses(c.LANPort)
 	}
-	b, err := json.Marshal(Pairing{Version: 1, Name: c.Name, Service: service, Fingerprint: id.Fingerprint, Token: token, Enrollment: strings.TrimSpace(string(jwt)), Expires: expires, Endpoints: public, HomeID: homeID, Addresses: addresses, Authority: authority})
+	b, err := json.Marshal(Pairing{Version: 1, Name: c.Name, Service: service, Fingerprint: id.Fingerprint, Token: token, Enrollment: jwt, Expires: expires, Endpoints: public, HomeID: homeID, Addresses: addresses, Authority: authority})
 	if err != nil {
 		return "", err
 	}

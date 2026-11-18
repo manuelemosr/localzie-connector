@@ -11,7 +11,7 @@ localzie-connector setup
 3. Copy the `LZ1:` code into **Localzie > Connect to a server** on your iPhone. Choose a service from the server list.
 4. Keep the terminal open while connected. Press Ctrl+C to stop the connector.
 
-You do not need to run separate serving and pairing commands. Setup saves your choices privately. To change them, stop the running connector with Ctrl+C, then run setup again. An existing Localzie remote connection is kept. New installations currently connect at home; Localzie handles remote activation, which is being added to guided setup.
+You do not need to run separate serving and pairing commands. Setup saves your choices privately. To change them, stop the running connector with Ctrl+C, then run setup again. An existing Localzie remote connection is kept. For first-time pairing across networks on a computer enabled for the Localzie preview, follow [remote setup](remote-setup.md).
 
 ## A service didn't appear
 
@@ -39,7 +39,7 @@ Enter a service number to check or uncheck it, then enter `0` to connect. Closin
 
 ## The phone says the code expired
 
-Run setup again to get a fresh code. Codes expire after ten minutes and can be used once. Do not share codes in public issues, screenshots or recordings. Existing remote connections need a fresh Localzie phone activation before another phone can pair; Localzie manages that step.
+Run setup again to get a fresh code. Codes expire after ten minutes and can be used once. Do not share codes in public issues, screenshots or recordings. For a new remote pairing code on a computer enabled for the preview, run `localzie-connector setup --remote` again.
 
 ## After restarting your computer
 
