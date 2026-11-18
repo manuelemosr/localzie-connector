@@ -160,9 +160,14 @@ func TestZitiFabricPinnedTLSAndDetachedGeneration(t *testing.T) {
 	chatCtx, detach := context.WithCancel(root)
 	req, _ = http.NewRequestWithContext(chatCtx, "POST", "https://home/api/model/v1/chat/completions", strings.NewReader(`{"stream":true}`))
 	req.Header.Set("X-Localzie-Token", result["token"])
+	req.Header.Set("X-Localzie-Inference", "synthetic-remote-turn")
 	resp, err = client.Do(req)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		t.Fatalf("inference request was not accepted: HTTP %d", resp.StatusCode)
 	}
 	first := make([]byte, 5)
 	if _, err = io.ReadFull(resp.Body, first); err != nil {
